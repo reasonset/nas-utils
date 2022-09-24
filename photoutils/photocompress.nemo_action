@@ -1,0 +1,8 @@
+[Nemo Action]
+Active=true
+Name=Process pictures
+Comment=Compress pictires
+Exec=<photoutils.rb %P>
+Selection=none
+Extensions=any;
+EscapeSpaces=true
