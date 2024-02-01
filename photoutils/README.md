@@ -2,12 +2,30 @@
 
 My local photo util.
 
+# Dependency
+
+* Ruby >=3.1
+* 
+
 # Usage
 
 ## Prepare
 
-* Make `photo` and `photo-thumb` directory on same directory.
-* Stock your pictures on `photo/${album}`.
+* Create photo album directory has `photo`, `photo-thumb` and optional `photo-thumb-mini` directories.
+* Make config file at `{XDG_CONFIG_HOME:-$HOME/.config}/reasonset/photoutils/photoutils.yaml`
+
+## Config File
+
+|key|type|description|
+|----------|-----|------------------|
+|`album_dir`|String|Photo album directory|
+|`video_dir`|String|Video album directory (link destination)|
+|`video_thumbnail_dir`|String|Video thumbnail directory. If null, don't generate video thumbnail|
+|`workers`|Integer|Number of workers (8 by default)|
+|`thumbnail_size`|String|Thumbnail limit size (ImageMagick option, 500x500 by default)|
+|`mini_thumbnail_size`|String|Sub thumbnail limit size (ImageMagick option.) If null, don't generate mini thumbnail.|
+|`use_gm`|Boolean|Use GraphicMagick instread of ImageMagick for generating thumbnail|
+
 
 ## Compress
 
@@ -50,20 +68,3 @@ PU_X265CRF=23
 PU_OPUSABR=128k
 PU_THUMBNAIL_SIZE=500x500
 ```
-
-## Compress and move video
-
-Do `videocompress.zsh` on your album directory.
-
-Compressed video is output on `${VIDEO_DIR}/by-album/${album}`.
-`$VIDEO_DIR` is XDG Video directory. You can override it with `$PU_VIDEODIR`.
-
-*It remove original videos when complete.*
-
-This script supports options:
-
-* `PU_USEVP9` : If set `yes`, use libvpx-vp9 instead of libx265.
-* `PU_X265CRF` : Set libx265 CRF value (default 23)
-* `PU_VP9CRF` : Set libvpx-vp9 CRF value (default 30)
-* `PU_OPUSABR` : Set libopus audio bitrate (default 128k)
-* `PU_THUMBNAIL_SIZE` : Set resize paramater generating thumbnail with ImageMagick.
