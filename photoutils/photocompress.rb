@@ -27,7 +27,7 @@ DIR_VIDEO = CONFIG["video_dir"] || DIR_ALBUM
 DIR_VIDEO_THUMB = CONFIG["video_thumbnail_dir"] || DIR_ALBUM
 THUMBNAIL_SIZE = CONFIG["thumbnail_size"] || "500x500"
 MINI_THUMBNAIL_SIZE = CONFIG["mini_thumbnail_size"]
-IM_COMMAND = CONFIG["use_gm"] ? ["gm", "convert"] : ["convert"]
+IM_COMMAND = CONFIG["use_gm"] ? ["gm", "magick"] : ["magick"]
 
 SETTINGS = {
   options: OPTS,
@@ -42,7 +42,7 @@ SETTINGS = {
   im_command: IM_COMMAND,
   raw_files: %w:.png .dng .nef .raw:,
   video_files: %w:.mp4 .mov .webm .mkv:,
-  convert_files: %w:.jpeg .jpg:
+  magick_files: %w:.jpeg .jpg:
 }
 
 FileUtils.mkdir_p File.join(DIR_ALBUM, ALBUM_NAME) unless File.exist? File.join(DIR_ALBUM, ALBUM_NAME)
@@ -62,7 +62,7 @@ master = Ractor.new files, SETTINGS, STDERR do |files, settings, stderr|
     end
 
     ext = File.extname(i).downcase
-    if settings[:convert_files].include? ext
+    if settings[:magick_files].include? ext
       Ractor.yield [i, :avif]
     elsif settings[:raw_files].include? ext
       Ractor.yield [i, :raw]
