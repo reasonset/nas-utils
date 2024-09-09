@@ -97,11 +97,11 @@ rs = []
 
       case item[1]
       when :avif, :raw # Generate thumbnail file
-        system *settings[:im_command], "-resize", settings[:thumb_size], item[0], File.join(settings[:dir_thumb], settings[:album_name], (File.basename(item[0], ".*") + ".jpeg"))
+        system *settings[:im_command], item[0], "-resize", settings[:thumb_size], File.join(settings[:dir_thumb], settings[:album_name], (File.basename(item[0], ".*") + ".jpeg"))
 
         # And generate mini thumbnail if mini thumbnail size is set.
         if settings[:mthumb_size]
-          system *settings[:im_command], "-resize", settings[:mthumb_size], item[0], File.join(settings[:dir_thumb_mini], settings[:album_name], (File.basename(item[0], ".*") + ".jpeg"))
+          system *settings[:im_command], item[0], "-resize", settings[:mthumb_size], File.join(settings[:dir_thumb_mini], settings[:album_name], (File.basename(item[0], ".*") + ".jpeg"))
         end
       when :video
         if settings[:dir_vthumb] # Generate video thumb if video thumbnail directory is set.
