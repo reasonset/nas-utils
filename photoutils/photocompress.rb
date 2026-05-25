@@ -10,7 +10,10 @@ op = OptionParser.new
 OPTS = {}
 
 op.on("-A", "--noavif")
+op.on("-l", "--link")
 op.parse!(ARGV, into: OPTS)
+
+cp_opt = ["v"]
 
 FARG = ARGV.shift
 raise unless FARG
@@ -77,6 +80,11 @@ end
 
 rs = []
 
+# Building cp option
+cp_opt.push("l") if OPTS[:link]
+cp_opt = cp_opt.map {|i| "-" + i }
+SETTINGS[:cp_opts] = cp_opt
+
 (CONFIG["workers"] || 8).times do
   rs.push(Ractor.new(master, SETTINGS, CONFIG) do |master, settings, config|
     loop do
@@ -85,14 +93,14 @@ rs = []
       case item[1]
       when :avif
         if settings[:options][:noavif]
-          system("cp", "-lv", item[0], File.join(settings[:dir_album], settings[:album_name]))            
+          system("cp", *settings[:cp_opts], item[0], File.join(settings[:dir_album], settings[:album_name]))
         else
           system "avifenc", item[0], File.join(settings[:dir_album], settings[:album_name], (File.basename(item[0], ".*") + ".avif"))
         end
       when :video
-        system("cp", "-lv", item[0], File.join(settings[:dir_video], settings[:album_name]))
+        system("cp", *settings[:cp_opts], item[0], File.join(settings[:dir_video], settings[:album_name]))
       when :raw, :unknown
-        system("cp", "-lv", item[0], File.join(settings[:dir_album], settings[:album_name]))
+        system("cp", *settings[:cp_opts], item[0], File.join(settings[:dir_album], settings[:album_name]))
       end
 
       case item[1]
@@ -105,7 +113,7 @@ rs = []
         end
       when :video
         if settings[:dir_vthumb] # Generate video thumb if video thumbnail directory is set.
-          system "ffmpeg", "-y", "-ss", "0:05", "-i", item[0], "-vframes", "1", File.join(settings[:dir_vthumb], settings[:album_name], (File.basename(item[0], ".*") + ".jpeg"))
+          system "ffmpeg", "-y", "-i", item[0], "-vf", "thumbnail=300", "-update", "1", "-pix_fmt", "yuvj420p", "-frames:v", "1", "-an", File.join(settings[:dir_vthumb], settings[:album_name], (File.basename(item[0], ".*") + ".jpeg"))
         end
       end
     end
@@ -119,3 +127,7 @@ end
 
 system "jpegoptim", "--max=80", *Dir.glob(File.join DIR_THUMB, ALBUM_NAME, "*.jpeg")
 system "jpegoptim", "--max=65", *Dir.glob(File.join DIR_MTHUMB, ALBUM_NAME, "*.jpeg") if MINI_THUMBNAIL_SIZE
+
+if Dir.children(File.join(DIR_VIDEO_THUMB, ALBUM_NAME)).empty?
+  Dir.delete(File.join(DIR_VIDEO_THUMB, ALBUM_NAME))
+end
